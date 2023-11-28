@@ -44,12 +44,14 @@ pub unsafe fn write_forward(fd: c_int, buf: *const c_void, _count: size_t) -> Wr
             return WriteForward::Forward(path.len() as ssize_t);
         };
 
+        let path = path.replace("scaling_min_freq", "scaling_max_freq");
+
         SERVICE
             .clone()
             .unwrap()
             .lock()
             .unwrap()
-            .writeFile(path, value)
+            .writeFile(&path, value)
             .unwrap();
         WriteForward::Forward(path.len() as ssize_t)
     } else {
