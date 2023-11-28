@@ -97,29 +97,29 @@ REPLACE=""
 
 # Set what you want to display when installing your module
 print_modname() {
-    return
+	return
 }
 
 # Copy/extract your module files into $MODPATH in on_install.
 on_install() {
-    $BOOTMODE || abort "! Uperf cannot be installed in recovery."
-    [ $ARCH == "arm64" ] || abort "! Uperf ONLY support arm64 platform."
-    
-    $(getprop fas_rs_installed) || abort "! fas-rs is not installed."
+	$BOOTMODE || abort "! Uperf cannot be installed in recovery."
+	[ $ARCH == "arm64" ] || abort "! Uperf ONLY support arm64 platform."
 
-    ui_print "- Extracting module files"
-    unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >/dev/null
+	$(getprop fas_rs_installed) || abort "! fas-rs is not installed."
 
-    # use universal setup.sh
-    sh $MODPATH/script/setup.sh
-    [ "$?" != "0" ] && abort
+	ui_print "- Extracting module files"
+	unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >/dev/null
+
+	# use universal setup.sh
+	sh $MODPATH/script/setup.sh
+	[ "$?" != "0" ] && abort
 }
 
 # Only some special files require specific permissions
 # This function will be called after on_install is done
 # The default permissions should be good enough for most cases
 set_permissions() {
-    return
+	return
 }
 
 # You can add more functions to assist your custom script code

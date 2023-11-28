@@ -21,56 +21,56 @@
 
 # $1:value $2:filepaths
 lock_val() {
-    for p in $2; do
-        if [ -f "$p" ]; then
-            chown root:root "$p"
-            chmod 0666 "$p"
-            echo "$1" >"$p"
-            chmod 0444 "$p"
-        fi
-    done
+	for p in $2; do
+		if [ -f "$p" ]; then
+			chown root:root "$p"
+			chmod 0666 "$p"
+			echo "$1" >"$p"
+			chmod 0444 "$p"
+		fi
+	done
 }
 
 # $1:value $2:filepaths
 mask_val() {
-    touch /data/local/tmp/mount_mask
-    for p in $2; do
-        if [ -f "$p" ]; then
-            umount "$p"
-            chmod 0666 "$p"
-            echo "$1" >"$p"
-            mount --bind /data/local/tmp/mount_mask "$p"
-        fi
-    done
+	touch /data/local/tmp/mount_mask
+	for p in $2; do
+		if [ -f "$p" ]; then
+			umount "$p"
+			chmod 0666 "$p"
+			echo "$1" >"$p"
+			mount --bind /data/local/tmp/mount_mask "$p"
+		fi
+	done
 }
 
 # $1:value $2:filepaths
 mutate() {
-    for p in $2; do
-        if [ -f "$p" ]; then
-            chmod 0666 "$p"
-            echo "$1" >"$p"
-        fi
-    done
+	for p in $2; do
+		if [ -f "$p" ]; then
+			chmod 0666 "$p"
+			echo "$1" >"$p"
+		fi
+	done
 }
 
 # $1:file path
 lock() {
-    if [ -f "$1" ]; then
-        chown root:root "$p"
-        chmod 0444 "$1"
-    fi
+	if [ -f "$1" ]; then
+		chown root:root "$p"
+		chmod 0444 "$1"
+	fi
 }
 
 # $1:value $2:list
 has_val_in_list() {
-    for item in $2; do
-        if [ "$1" == "$item" ]; then
-            echo "true"
-            return
-        fi
-    done
-    echo "false"
+	for item in $2; do
+		if [ "$1" == "$item" ]; then
+			echo "true"
+			return
+		fi
+	done
+	echo "false"
 }
 
 ###############################
@@ -79,36 +79,36 @@ has_val_in_list() {
 
 # $1:key $return:value(string)
 read_cfg_value() {
-    local value=""
-    if [ -f "$PANEL_FILE" ]; then
-        value="$(grep -i "^$1=" "$PANEL_FILE" | head -n 1 | tr -d ' ' | cut -d= -f2)"
-    fi
-    echo "$value"
+	local value=""
+	if [ -f "$PANEL_FILE" ]; then
+		value="$(grep -i "^$1=" "$PANEL_FILE" | head -n 1 | tr -d ' ' | cut -d= -f2)"
+	fi
+	echo "$value"
 }
 
 # $1:content
 write_panel() {
-    echo "$1" >>"$PANEL_FILE"
+	echo "$1" >>"$PANEL_FILE"
 }
 
 clear_panel() {
-    true >"$PANEL_FILE"
+	true >"$PANEL_FILE"
 }
 
 wait_until_login() {
-    # in case of /data encryption is disabled
-    while [ "$(getprop sys.boot_completed)" != "1" ]; do
-        sleep 1
-    done
+	# in case of /data encryption is disabled
+	while [ "$(getprop sys.boot_completed)" != "1" ]; do
+		sleep 1
+	done
 
-    # we doesn't have the permission to rw "/sdcard" before the user unlocks the screen
-    local test_file="/sdcard/Android/.PERMISSION_TEST"
-    true >"$test_file"
-    while [ ! -f "$test_file" ]; do
-        true >"$test_file"
-        sleep 1
-    done
-    rm "$test_file"
+	# we doesn't have the permission to rw "/sdcard" before the user unlocks the screen
+	local test_file="/sdcard/Android/.PERMISSION_TEST"
+	true >"$test_file"
+	while [ ! -f "$test_file" ]; do
+		true >"$test_file"
+		sleep 1
+	done
+	rm "$test_file"
 }
 
 ###############################
@@ -117,9 +117,9 @@ wait_until_login() {
 
 # $1:content
 log() {
-    echo "$1" >>"$LOG_FILE"
+	echo "$1" >>"$LOG_FILE"
 }
 
 clear_log() {
-    true >"$LOG_FILE"
+	true >"$LOG_FILE"
 }

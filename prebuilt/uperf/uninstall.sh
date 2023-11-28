@@ -19,29 +19,29 @@
 USER_PATH=/sdcard/Android/yc/uperf
 
 wait_until_login() {
-    # in case of /data encryption is disabled
-    while [ "$(getprop sys.boot_completed)" != "1" ]; do
-        sleep 1
-    done
+	# in case of /data encryption is disabled
+	while [ "$(getprop sys.boot_completed)" != "1" ]; do
+		sleep 1
+	done
 
-    # we doesn't have the permission to rw "/sdcard" before the user unlocks the screen
-    local test_file="/sdcard/Android/.PERMISSION_TEST"
-    true >"$test_file"
-    while [ ! -f "$test_file" ]; do
-        true >"$test_file"
-        sleep 1
-    done
-    rm "$test_file"
+	# we doesn't have the permission to rw "/sdcard" before the user unlocks the screen
+	local test_file="/sdcard/Android/.PERMISSION_TEST"
+	true >"$test_file"
+	while [ ! -f "$test_file" ]; do
+		true >"$test_file"
+		sleep 1
+	done
+	rm "$test_file"
 }
 
 on_remove() {
-    wait_until_login
+	wait_until_login
 
-    # keep user perapp config
-    cp -af $USER_PATH/perapp_powermode.txt /sdcard/
-    rm -rf $USER_PATH
-    mkdir -p $USER_PATH
-    mv /sdcard/perapp_powermode.txt $USER_PATH/
+	# keep user perapp config
+	cp -af $USER_PATH/perapp_powermode.txt /sdcard/
+	rm -rf $USER_PATH
+	mkdir -p $USER_PATH
+	mv /sdcard/perapp_powermode.txt $USER_PATH/
 }
 
 # do not block boot
