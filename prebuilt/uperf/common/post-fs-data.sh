@@ -22,3 +22,5 @@ if [ -f "$MODDIR/flag/need_recuser" ]; then
 else
     true >$MODDIR/flag/need_recuser
 fi
+
+resetprop uperf_patched_fas_rs true

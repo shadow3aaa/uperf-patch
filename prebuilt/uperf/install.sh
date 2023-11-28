@@ -104,6 +104,8 @@ print_modname() {
 on_install() {
     $BOOTMODE || abort "! Uperf cannot be installed in recovery."
     [ $ARCH == "arm64" ] || abort "! Uperf ONLY support arm64 platform."
+    
+    $(getprop fas_rs_installed) || abort "! fas-rs is not installed."
 
     ui_print "- Extracting module files"
     unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >/dev/null

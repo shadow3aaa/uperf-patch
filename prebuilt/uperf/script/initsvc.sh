@@ -23,15 +23,5 @@ BASEDIR="$(dirname $(readlink -f "$0"))"
 # create busybox symlinks
 $BIN_PATH/busybox/busybox --install -s $BIN_PATH/busybox
 
-# support vtools
-cp -af $SCRIPT_PATH/vtools_powercfg.sh /data/powercfg.sh
-cp -af $SCRIPT_PATH/vtools_powercfg.sh /data/powercfg-base.sh
-cp -af $SCRIPT_PATH/powercfg.json /data/powercfg.json
-chmod 755 /data/powercfg.sh
-chmod 755 /data/powercfg-base.sh
-echo "sh $SCRIPT_PATH/powercfg_main.sh \"\$1\"" >>/data/powercfg.sh
-
 wait_until_login
-
-sh $SCRIPT_PATH/powercfg_once.sh
 uperf_start

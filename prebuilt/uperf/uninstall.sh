@@ -42,8 +42,6 @@ on_remove() {
     rm -rf $USER_PATH
     mkdir -p $USER_PATH
     mv /sdcard/perapp_powermode.txt $USER_PATH/
-
-    rm -f /data/powercfg*
 }
 
 # do not block boot
