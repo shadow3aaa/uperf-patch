@@ -35,7 +35,9 @@ uperf_start() {
         ASAN_LIB="$(ls $BIN_PATH/libclang_rt.asan-*-android.so)"
         export LD_PRELOAD="$ASAN_LIB $BIN_PATH/libc++_shared.so"
     fi
-    $BIN_PATH/uperf $USER_PATH/uperf.json -o $USER_PATH/uperf_log.txt
+    
+    # fas-rs patched
+    LD_PRELOAD=$LD_PRELOAD:$BIN_PATH/libuperf_patch.so $BIN_PATH/uperf $USER_PATH/uperf.json -o $USER_PATH/uperf_log.txt
 
     # waiting for uperf initialization
     sleep 2
