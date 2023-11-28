@@ -1,6 +1,6 @@
 id=uperf
-name=Uperf(patched by fas-rs)
+name=Uperf (patched by fas-rs)
 version=v3(22.09.04)
 versionCode=220904
-author=Matt Yang, patched by Shadow3
+author=Matt Yang, patched by @shadow3
 description=Userspace performance controller for android.

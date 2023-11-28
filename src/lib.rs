@@ -52,13 +52,12 @@ unsafe fn patch_main() {
     let addr = resolve_func_addr(None, "write").unwrap();
     hook(addr, patched_write as Address, Some(&mut LIBC_WRITE)).unwrap();
 
-    SERVICE
+    let _ = SERVICE
         .clone()
         .unwrap()
         .lock()
         .unwrap()
-        .connectServer()
-        .unwrap();
+        .connectServer();
 }
 
 unsafe extern "C" fn patched_write(fd: c_int, buf: *const c_void, count: size_t) -> ssize_t {
