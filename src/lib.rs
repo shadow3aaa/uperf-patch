@@ -26,41 +26,60 @@ use std::{
 use binder::Strong;
 use ctor::ctor;
 use dobby_api::{hook, resolve_func_addr, Address};
+
 use libc::{c_int, c_void, size_t, ssize_t};
 
-use forward::{write_forward, WriteForward};
+use forward::{read_forward, write_forward, RwForward};
 
 type Service = Strong<dyn IRemoteService::IRemoteService>;
 type MutexService = Mutex<Service>;
 
 static mut LIBC_WRITE: Address = ptr::null_mut();
-pub(crate) static mut SERVICE: Option<Arc<MutexService>> = None;
+static mut LIBC_READ: Address = ptr::null_mut();
+static mut SERVICE: Option<Arc<MutexService>> = None;
 
 #[ctor]
 unsafe fn patch_main() {
     use IRemoteService::IRemoteService;
 
-    loop {
+    SERVICE = loop {
         if let Ok(service) = binder::get_interface::<dyn IRemoteService>("fas_rs_server_uperf") {
-            SERVICE = Some(Arc::new(Mutex::new(service)));
-            break;
+            break Some(Arc::new(Mutex::new(service)));
         } else {
             thread::sleep(Duration::from_secs(1));
         }
-    }
+    };
 
     let addr = resolve_func_addr(None, "write").unwrap();
     hook(addr, patched_write as Address, Some(&mut LIBC_WRITE)).unwrap();
 
+    let addr = resolve_func_addr(None, "read").unwrap();
+    hook(addr, patched_read as Address, Some(&mut LIBC_READ)).unwrap();
+
     let _ = SERVICE.clone().unwrap().lock().unwrap().connectServer();
 }
 
-unsafe extern "C" fn patched_write(fd: c_int, buf: *const c_void, count: size_t) -> ssize_t {
+pub(crate) unsafe fn libc_write(fd: c_int, buf: *const c_void, count: size_t) -> ssize_t {
     let ori_write: extern "C" fn(c_int, *const c_void, size_t) -> ssize_t =
         mem::transmute(LIBC_WRITE);
+    ori_write(fd, buf, count)
+}
 
+pub(crate) unsafe fn libc_read(fd: c_int, buf: *mut c_void, count: size_t) -> ssize_t {
+    let ori_read: extern "C" fn(c_int, *mut c_void, size_t) -> ssize_t = mem::transmute(LIBC_READ);
+    ori_read(fd, buf, count)
+}
+
+unsafe extern "C" fn patched_write(fd: c_int, buf: *const c_void, count: size_t) -> ssize_t {
     match write_forward(fd, buf, count) {
-        WriteForward::Allow => ori_write(fd, buf, count),
-        WriteForward::Forward(s) => s,
+        RwForward::Allow => libc_write(fd, buf, count),
+        RwForward::Forward(s) => s,
+    }
+}
+
+unsafe extern "C" fn patched_read(fd: c_int, buf: *mut c_void, count: size_t) -> ssize_t {
+    match read_forward(fd, buf, count) {
+        RwForward::Allow => libc_read(fd, buf, count),
+        RwForward::Forward(s) => s,
     }
 }
