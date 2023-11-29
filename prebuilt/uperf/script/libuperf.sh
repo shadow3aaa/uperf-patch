@@ -36,6 +36,11 @@ uperf_start() {
 		export LD_PRELOAD="$ASAN_LIB $BIN_PATH/libc++_shared.so"
 	fi
 
+	# use fas-rs mode
+	rm -f $USER_PATH/cur_powermode.txt
+	touch $USER_PATH/cur_powermode.txt
+	mount --bind /dev/fas_rs/mode $USER_PATH/cur_powermode.txt
+
 	$BIN_PATH/uperf $USER_PATH/uperf.json -o $USER_PATH/uperf_log.txt
 
 	# waiting for uperf initialization
@@ -52,13 +57,4 @@ uperf_start() {
 	for pid in $(pidof uperf); do
 		$BIN_PATH/inject -p $pid -so $BIN_PATH/libuperf_patch.so
 	done
-
-	# use fas-rs mode
-	until [ -f /dev/fas_rs/mode ] && [ -f $USER_PATH/cur_powermode.txt ]; do
-		sleep 1s
-	done
-
-	rm $USER_PATH/cur_powermode.txt
-	touch $USER_PATH/cur_powermode.txt
-	mount --bind /dev/fas_rs/mode $USER_PATH/cur_powermode.txt
 }
