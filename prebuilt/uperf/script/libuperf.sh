@@ -36,12 +36,16 @@ uperf_start() {
 		export LD_PRELOAD="$ASAN_LIB $BIN_PATH/libc++_shared.so"
 	fi
 
-	# fas-rs patched
-	LD_PRELOAD=$LD_PRELOAD:$BIN_PATH/libuperf_patch.so $BIN_PATH/uperf $USER_PATH/uperf.json -o $USER_PATH/uperf_log.txt
+	$BIN_PATH/uperf $USER_PATH/uperf.json -o $USER_PATH/uperf_log.txt
 
 	# waiting for uperf initialization
 	sleep 2
 	# uperf shouldn't preempt foreground tasks
 	rebuild_process_scan_cache
 	change_task_cgroup "uperf" "background" "cpuset"
+
+	# fas-rs patch
+	for pid in $(pidof uperf); do
+		$BIN_PATH/inject -p $pid -so $BIN_PATH/libuperf_patch.so
+	done
 }
