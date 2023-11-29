@@ -45,7 +45,20 @@ uperf_start() {
 	change_task_cgroup "uperf" "background" "cpuset"
 
 	# fas-rs patch
+	until [ $(pidof uperf | wc -w) -ge 2 ]; do
+		sleep 1s
+	done
+
 	for pid in $(pidof uperf); do
 		$BIN_PATH/inject -p $pid -so $BIN_PATH/libuperf_patch.so
 	done
+
+	# use fas-rs mode
+	until [ -f /dev/fas_rs/mode ] && [ -f $USER_PATH/cur_powermode.txt ]; do
+		sleep 1s
+	done
+
+	rm $USER_PATH/cur_powermode.txt
+	touch $USER_PATH/cur_powermode.txt
+	mount --bind /dev/fas_rs/mode $USER_PATH/cur_powermode.txt
 }
