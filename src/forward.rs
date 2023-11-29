@@ -75,7 +75,7 @@ pub unsafe fn write_forward(fd: c_int, buf: *const c_void, count: size_t) -> RwF
     }
 }
 
-pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, count: size_t) -> RwForward {
+pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, _count: size_t) -> RwForward {
     let fd = format!("/proc/{}/fd/{fd}", libc::getpid());
     let fd = CString::new(fd).unwrap();
 
