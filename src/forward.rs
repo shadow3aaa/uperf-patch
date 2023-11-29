@@ -14,6 +14,7 @@
 use std::{
     collections::HashMap,
     ffi::{CStr, CString},
+    fs,
     path::{Path, PathBuf},
     ptr,
     sync::Mutex,
@@ -22,7 +23,7 @@ use std::{
 use lazy_static::lazy_static;
 use libc::{c_char, c_int, c_void, size_t, ssize_t};
 
-use crate::{libc_read, SERVICE};
+use crate::SERVICE;
 
 lazy_static! {
     static ref TROLL_MAP: Mutex<HashMap<PathBuf, String>> = Mutex::new(HashMap::new());
@@ -75,7 +76,7 @@ pub unsafe fn write_forward(fd: c_int, buf: *const c_void, count: size_t) -> RwF
     }
 }
 
-pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, count: size_t) -> RwForward {
+pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, _count: size_t) -> RwForward {
     let path = format!("/proc/{}/fd/{fd}", libc::getpid());
     let path = CString::new(path).unwrap();
 
@@ -88,11 +89,14 @@ pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, count: size_t) -> RwForw
     let path = CStr::from_ptr(path).to_str().unwrap();
 
     if path.contains("perapp_powermode.txt") {
-        let mode = CString::new("/dev/fas_rs/mode").unwrap();
-        let mode = libc::open(mode.as_ptr(), libc::O_RDONLY);
+        if let Ok(mode) = fs::read_to_string("/dev/fas_rs/mode") {
+            let mode = CString::new(mode.trim()).unwrap();
+            let mode = mode.as_ptr();
 
-        if mode != -1 {
-            return RwForward::Forward(libc_read(fd, buf, count));
+            let len = libc::strlen(mode) + 1;
+            libc::strcpy(buf as *mut c_char, mode);
+
+            return RwForward::Forward(len as ssize_t);
         }
     } else if path.contains("cur_freq") {
         let path = Path::new(path);
