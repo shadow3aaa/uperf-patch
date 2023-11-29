@@ -14,7 +14,6 @@
 use std::{
     collections::HashMap,
     ffi::{CStr, CString},
-    fs,
     path::{Path, PathBuf},
     ptr,
     sync::Mutex,
@@ -88,17 +87,7 @@ pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, _count: size_t) -> RwFor
 
     let path = CStr::from_ptr(path).to_str().unwrap();
 
-    if path.contains("perapp_powermode.txt") {
-        if let Ok(mode) = fs::read_to_string("/dev/fas_rs/mode") {
-            let mode = CString::new(mode.trim()).unwrap();
-            let mode = mode.as_ptr();
-
-            let len = libc::strlen(mode) + 1;
-            libc::strcpy(buf as *mut c_char, mode);
-
-            return RwForward::Forward(len as ssize_t);
-        }
-    } else if path.contains("cur_freq") {
+    if path.contains("cur_freq") {
         let path = Path::new(path);
         let path = path.parent().unwrap();
 
