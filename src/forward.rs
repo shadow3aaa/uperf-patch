@@ -22,7 +22,7 @@ use std::{
 use lazy_static::lazy_static;
 use libc::{c_char, c_int, c_void, size_t, ssize_t};
 
-use crate::SERVICE;
+use crate::{libc_read, SERVICE};
 
 lazy_static! {
     static ref TROLL_MAP: Mutex<HashMap<PathBuf, String>> = Mutex::new(HashMap::new());
@@ -75,11 +75,11 @@ pub unsafe fn write_forward(fd: c_int, buf: *const c_void, count: size_t) -> RwF
     }
 }
 
-pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, _count: size_t) -> RwForward {
-    let fd = format!("/proc/{}/fd/{fd}", libc::getpid());
-    let fd = CString::new(fd).unwrap();
+pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, count: size_t) -> RwForward {
+    let path = format!("/proc/{}/fd/{fd}", libc::getpid());
+    let path = CString::new(path).unwrap();
 
-    let path = libc::realpath(fd.as_ptr(), ptr::null_mut());
+    let path = libc::realpath(path.as_ptr(), ptr::null_mut());
 
     if path.is_null() {
         return RwForward::Allow;
@@ -87,7 +87,14 @@ pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, _count: size_t) -> RwFor
 
     let path = CStr::from_ptr(path).to_str().unwrap();
 
-    if path.contains("cur_freq") {
+    if path.contains("perapp_powermode.txt") {
+        let mode = CString::new("/dev/fas_rs/mode").unwrap();
+        let mode = libc::open(mode.as_ptr(), libc::O_RDONLY);
+
+        if mode != -1 {
+            return RwForward::Forward(libc_read(fd, buf, count));
+        }
+    } else if path.contains("cur_freq") {
         let path = Path::new(path);
         let path = path.parent().unwrap();
 
