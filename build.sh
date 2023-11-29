@@ -114,8 +114,8 @@ if $RELEASE_BUILD; then
 	fi
 
 	init_package
-	strip $TEMPDIR/bin/libuperf_patch.so
 	cp -f target/aarch64-linux-android/release/libuperf_patch.so $TEMPDIR/bin/libuperf_patch.so
+	strip $TEMPDIR/bin/libuperf_patch.so
 
 	cd $TEMPDIR
 	zip -9 -rq "../uperf-patched(release).zip" .
