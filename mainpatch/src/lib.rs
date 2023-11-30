@@ -25,7 +25,7 @@ use std::{
 
 use binder::Strong;
 use ctor::ctor;
-use dobby_api::{hook, resolve_func_addr, Address};
+use dobby_api::{hook, resolve_func_addr, undo_hook, Address};
 
 use libc::{c_int, c_void, size_t, ssize_t};
 
@@ -51,9 +51,11 @@ unsafe fn patch_main() {
     };
 
     let addr = resolve_func_addr(None, "write").unwrap();
+    let _ = undo_hook(addr);
     hook(addr, patched_write as Address, Some(&mut LIBC_WRITE)).unwrap();
 
     let addr = resolve_func_addr(None, "read").unwrap();
+    let _ = undo_hook(addr);
     hook(addr, patched_read as Address, Some(&mut LIBC_READ)).unwrap();
 
     let _ = SERVICE.clone().unwrap().lock().unwrap().connectServer();

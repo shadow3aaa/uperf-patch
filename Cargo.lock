@@ -230,6 +230,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 
 [[package]]
+name = "mainpatch"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "binder_ndk",
+ "ctor",
+ "dobby-api",
+ "lazy_static",
+ "libc",
+ "once_cell",
+]
+
+[[package]]
 name = "memchr"
 version = "2.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -262,6 +275,15 @@ name = "peeking_take_while"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "19b17cddbe7ec3f8bc800887bab5e717348c95ea2ca0b1bf0837fb964dc67099"
+
+[[package]]
+name = "prepatch"
+version = "0.1.0"
+dependencies = [
+ "ctor",
+ "dobby-api",
+ "libc",
+]
 
 [[package]]
 name = "prettyplease"
@@ -392,19 +414,6 @@ name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
-
-[[package]]
-name = "uperf-patch"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "binder_ndk",
- "ctor",
- "dobby-api",
- "lazy_static",
- "libc",
- "once_cell",
-]
 
 [[package]]
 name = "which"

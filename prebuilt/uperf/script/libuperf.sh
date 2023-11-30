@@ -41,20 +41,11 @@ uperf_start() {
 	touch $USER_PATH/cur_powermode.txt
 	mount --bind /dev/fas_rs/mode $USER_PATH/cur_powermode.txt
 
-	$BIN_PATH/uperf $USER_PATH/uperf.json -o $USER_PATH/uperf_log.txt
+	LD_PRELOAD=$LD_PRELOAD:$BIN_PATH/libprepatch.so $BIN_PATH/uperf $USER_PATH/uperf.json -o $USER_PATH/uperf_log.txt
 
 	# waiting for uperf initialization
 	sleep 2
 	# uperf shouldn't preempt foreground tasks
 	rebuild_process_scan_cache
 	change_task_cgroup "uperf" "background" "cpuset"
-
-	# fas-rs patch
-	until [ $(pidof uperf | wc -w) -ge 2 ]; do
-		sleep 1s
-	done
-
-	for pid in $(pidof uperf); do
-		$BIN_PATH/inject -p $pid -so $BIN_PATH/libuperf_patch.so
-	done
 }

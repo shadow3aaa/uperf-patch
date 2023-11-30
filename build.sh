@@ -24,10 +24,9 @@ VERBOSE=false
 
 init_package() {
 	cd $SHDIR
-	rm -rf $TEMPDIR
+	rm -rf $TEMPDIR/../*
 	mkdir -p $TEMPDIR
 	cp -rf prebuilt/uperf/* $TEMPDIR
-	cp -f prebuilt/inject $TEMPDIR/bin/inject
 }
 
 if [ "$TERMUX_VERSION" = "" ]; then
@@ -74,7 +73,7 @@ done
 set -e
 
 if $HELP || $NOARG; then
-	echo -n "./build.sh:
+	echo "./build.sh:
     --release / release / -r / r:
         release build
     --debug / debug / -d / d:
@@ -98,7 +97,8 @@ if $DEBUG_BUILD; then
 	fi
 
 	init_package
-	cp -f target/aarch64-linux-android/debug/libuperf_patch.so $TEMPDIR/bin/libuperf_patch.so
+	cp -f target/aarch64-linux-android/debug/libprepatch.so $TEMPDIR/bin/libprepatch.so
+	cp -f target/aarch64-linux-android/debug/libmainpatch.so $TEMPDIR/bin/libmainpatch.so
 
 	cd $TEMPDIR
 	zip -9 -rq "../uperf-patched(debug).zip" .
@@ -114,8 +114,11 @@ if $RELEASE_BUILD; then
 	fi
 
 	init_package
-	cp -f target/aarch64-linux-android/release/libuperf_patch.so $TEMPDIR/bin/libuperf_patch.so
-	strip $TEMPDIR/bin/libuperf_patch.so
+	cp -f target/aarch64-linux-android/release/libprepatch.so $TEMPDIR/bin/libprepatch.so
+	cp -f target/aarch64-linux-android/release/libmainpatch.so $TEMPDIR/bin/libmainpatch.so
+
+	strip $TEMPDIR/bin/libprepatch.so
+	strip $TEMPDIR/bin/libmainpatch.so
 
 	cd $TEMPDIR
 	zip -9 -rq "../uperf-patched(release).zip" .
