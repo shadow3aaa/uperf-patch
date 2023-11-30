@@ -55,11 +55,8 @@ unsafe extern "C" fn patched_read(fd: c_int, buf: *mut c_void, count: size_t) ->
         let lib = lib.to_str().unwrap();
         let lib = CString::new(lib).unwrap();
 
-        /*thread::spawn(move || {
-        thread::sleep(Duration::from_secs(3));*/
         libc::dlopen(lib.as_ptr(), libc::RTLD_NOW | libc::RTLD_GLOBAL);
         HOOKED.store(true, Ordering::Release);
-        // });
     }
 
     FLAG.store(true, Ordering::Release);
