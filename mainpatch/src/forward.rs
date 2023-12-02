@@ -24,6 +24,8 @@ use libc::{c_char, c_int, c_void, size_t, ssize_t};
 
 use crate::SERVICE;
 
+const CPUFREQ: &str = "/sys/devices/system/cpu/cpufreq";
+
 lazy_static! {
     static ref TROLL_MAP: Mutex<HashMap<PathBuf, String>> = Mutex::new(HashMap::new());
 }
@@ -44,6 +46,10 @@ pub unsafe fn write_forward(fd: c_int, buf: *const c_void, count: size_t) -> RwF
     }
 
     let path = CStr::from_ptr(path).to_str().unwrap();
+
+    if !path.contains(CPUFREQ) {
+        return RwForward::Allow;
+    }
 
     if path.contains("scaling_governor") {
         RwForward::Forward(count as ssize_t)
@@ -87,7 +93,11 @@ pub unsafe fn read_forward(fd: c_int, buf: *mut c_void, _count: size_t) -> RwFor
 
     let path = CStr::from_ptr(path).to_str().unwrap();
 
-    if path.contains("cur_freq") {
+    if !path.contains(CPUFREQ) {
+        return RwForward::Allow;
+    }
+
+    if path.contains("scaling_cur_freq") {
         let path = Path::new(path);
         let path = path.parent().unwrap();
 
